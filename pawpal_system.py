@@ -132,6 +132,7 @@ class Scheduler:
     """Scheduler coordinates owner/pet tasks and produces a daily plan."""
 
     def __init__(self, owner: Owner, pets: Union[Pet, List[Pet]]):
+        """Initialize the scheduler with an owner and one or more pets."""
         self.owner = owner
         self.pets: List[Pet] = pets if isinstance(pets, list) else [pets]
         self.schedule: Optional[Schedule] = None

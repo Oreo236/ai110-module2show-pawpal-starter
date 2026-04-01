@@ -11,7 +11,6 @@ def main() -> None:
     owner.add_pet(pet1)
     owner.add_pet(pet2)
 
-    # Create tasks (intentionally out of chronological order)
     t1 = Task(name="Morning Walk", duration=30, priority=3, category="walking", preferred_time="morning")
     t1.time = "07:30"
 
@@ -24,16 +23,12 @@ def main() -> None:
     t3.time = "12:15"
 
     t4 = Task(name="Play Session", duration=25, priority=2, category="enrichment", preferred_time="evening")
-    # Intentionally set the same time as Morning Walk to create a conflict
     t4.time = "07:30"
 
-    # Add tasks out of chronological order to pets
     pet1.add_task(t4)
     pet1.add_task(t1)
     pet2.add_task(t3)
     pet1.add_task(t2)
-
-    # (Do not mark directly here; we'll use Scheduler.mark_task_complete later)
 
     scheduler = Scheduler(owner, [pet1, pet2])
     schedule = scheduler.generate_schedule()
@@ -53,7 +48,6 @@ def main() -> None:
         for t in uns:
             print(f"- {t.name} ({t.duration}m) priority {t.priority}")
 
-    # Demonstrate sort_by_time and filter_tasks
     print("\nAll tasks (original order):")
     for t in owner.get_all_tasks():
         print(f"- {t.name} @ {getattr(t, 'time', None)} completed={t.completed}")
@@ -77,7 +71,6 @@ def main() -> None:
     else:
         print("\nNo recurring task created.")
 
-    # Print conflict warnings detected by the scheduler
     warnings = scheduler.conflict_warnings()
     if warnings:
         print("\nWarnings:")
