@@ -47,3 +47,11 @@ pip install -r requirements.txt
 2. Filtering helpers: Filters tasks by completion status or pet name for quick views and UI controls.
 3. Recurring tasks: Tasks can have a frequency(daily/weekly) and due_date; calling Scheduler.mark_task_complete will automatically create the next occurrence.
 4. Conflict detection: Report tasks that share the same start time to help the owner resolve overlaps.
+
+## Testing PawPal+
+
+- **Run tests:** run: python -m pytest
+
+- **What the tests cover:** Sorting (chronological ordering and handling tasks without times), recurrence logic (marking a daily task complete creates the next occurrence), conflict detection (duplicate start times and warnings), schedule generation (mandatory vs prioritized tasks), and edge cases (pets with no tasks, completed tasks ignored when detecting conflicts).
+
+- **Confidence Level:** ⭐⭐⭐⭐☆ (4/5) — Tests cover core scheduling behaviors and important edge cases

@@ -171,6 +171,9 @@ class Scheduler:
                 self._unscheduled.append(t)
 
         schedule.remaining_time = available
+        # calculate and store total scheduled time
+        schedule.calculate_total_time()
+
         self.schedule = schedule
         return schedule
 
