@@ -32,7 +32,9 @@ Copilot suggested I add a Schedule class because it separates the planner's deci
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
+ The scheduler currently detects time conflicts only by exact start-time matches (tasks that share the same "HH:MM" string) instead of computing full interval overlaps using task durations. This keeps conflict-detection very simple and fast.
 - Why is that tradeoff reasonable for this scenario?
+ This tradeoff is reasonable for a lightweight, owner-facing planner because many routine pet tasks are scheduled at explicit start times (feedings, walks). Exact-match checking is cheap and easy to explain; if users report overlapping intervals as a problem, the logic can be extended later to perform interval-overlap checks or a timeline allocation algorithm.
 
 ---
 

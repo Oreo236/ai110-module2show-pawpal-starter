@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional, Union
+from datetime import date, timedelta
 
 
 @dataclass
@@ -11,10 +12,14 @@ class Task:
     completed: bool = False
     must_do: bool = False
     preferred_time: Optional[str] = None  # e.g., "morning", "afternoon"
+    frequency: Optional[str] = None  # e.g., "daily", "weekly"
+    due_date: Optional[date] = None
 
     def mark_complete(self) -> None:
         """Mark the task complete."""
         self.completed = True
+
+
 
     def update_priority(self, new_priority: int) -> None:
         """Update the task's priority level."""
@@ -182,6 +187,26 @@ class Scheduler:
         """Return tasks sorted by priority (high->low) then by shorter duration."""
         return sorted(tasks, key=lambda t: (-t.priority, t.duration))
 
+    def sort_by_time(self, tasks: List[Task], reverse: bool = False) -> List[Task]:
+        """Sort Task objects by their `time` attribute formatted as "HH:MM".
+
+        Tasks without a `time` attribute or with None/invalid format are pushed to the end.
+        """
+        keyed = []
+        for t in tasks:
+            tm = getattr(t, "time", None)
+            if not tm:
+                score = float("inf")
+            else:
+                try:
+                    h, m = tm.split(":")
+                    score = int(h) * 60 + int(m)
+                except Exception:
+                    score = float("inf")
+            keyed.append((score, t))
+        keyed.sort(key=lambda x: x[0], reverse=reverse)
+        return [t for _, t in keyed]
+
     def filter_feasible_tasks(self, tasks: List[Task], available_minutes: int) -> List[Task]:
         """Greedily select tasks that fit within available minutes."""
         feasible: List[Task] = []
@@ -191,6 +216,104 @@ class Scheduler:
                 feasible.append(t)
                 remaining -= t.duration
         return feasible
+
+    def filter_tasks(self, completed: Optional[bool] = None, pet_name: Optional[str] = None) -> List[Task]:
+        """Return tasks filtered by completion status and/or pet name.
+
+        - If `completed` is not None, only tasks with `task.completed == completed` are returned.
+        - If `pet_name` is provided, only tasks belonging to that pet are considered.
+        - If both filters are None, all tasks for the owner are returned.
+        """
+        results: List[Task] = []
+        for pet in self.owner.get_pets():
+            if pet_name is not None and pet.name != pet_name:
+                continue
+            for task in pet.get_tasks():
+                if completed is not None and task.completed != completed:
+                    continue
+                results.append(task)
+        return results
+
+    def mark_task_complete(self, task: Task, pet_name: Optional[str] = None) -> Optional[Task]:
+        """Mark a task complete; if it is recurring ('daily' or 'weekly'), create the next occurrence.
+
+        Returns the newly created Task for the next occurrence, or None if no recurrence.
+        If `pet_name` is provided, the task will be searched for among that pet's tasks;
+        otherwise we search all pets and stop at the first match.
+        """
+        target_pet = None
+        for pet in self.owner.get_pets():
+            if pet_name is not None and pet.name != pet_name:
+                continue
+            # match by identity or by name
+            for t in pet.get_tasks():
+                if t is task or (t.name == task.name and t.duration == task.duration and t.priority == task.priority):
+                    target_pet = pet
+                    matched_task = t
+                    break
+            if target_pet:
+                break
+
+        if not target_pet:
+            return None
+
+        # mark completed
+        matched_task.mark_complete()
+
+        freq = (matched_task.frequency or "").lower()
+        if freq not in ("daily", "weekly"):
+            return None
+
+        # compute next due date (use today if no due_date set)
+        base = matched_task.due_date or date.today()
+        delta_days = 1 if freq == "daily" else 7
+        next_due = base + timedelta(days=delta_days)
+
+        # create a new Task instance for the next occurrence
+        new_task = Task(
+            name=matched_task.name,
+            duration=matched_task.duration,
+            priority=matched_task.priority,
+            category=matched_task.category,
+            completed=False,
+            must_do=matched_task.must_do,
+            preferred_time=matched_task.preferred_time,
+            frequency=matched_task.frequency,
+            due_date=next_due,
+        )
+
+        target_pet.add_task(new_task)
+        return new_task
+
+    def detect_time_conflicts(self, tasks: Optional[List[Task]] = None) -> Dict[str, List[Task]]:
+        """Detect tasks that share the same start time ("HH:MM").
+
+        Returns a dict mapping time string -> list of conflicting Task objects (length > 1).
+        If `tasks` is None, considers all owner's tasks.
+        Completed tasks are ignored.
+        """
+        tasks_to_check = tasks if tasks is not None else self.owner.get_all_tasks()
+        buckets: Dict[str, List[Task]] = {}
+        for t in tasks_to_check:
+            tm = getattr(t, "time", None)
+            if not tm:
+                continue
+            if t.completed:
+                continue
+            buckets.setdefault(tm, []).append(t)
+
+        # filter only times with more than one task
+        conflicts = {time: lst for time, lst in buckets.items() if len(lst) > 1}
+        return conflicts
+
+    def conflict_warnings(self, tasks: Optional[List[Task]] = None) -> List[str]:
+        """Return human-readable warning strings for detected time conflicts."""
+        conflicts = self.detect_time_conflicts(tasks)
+        warnings: List[str] = []
+        for time_str, lst in conflicts.items():
+            names = ", ".join(f"{t.name}" for t in lst)
+            warnings.append(f"Conflict at {time_str}: {names}")
+        return warnings
 
     def apply_preferences(self, tasks: List[Task]) -> List[Task]:
         """Reorder tasks to respect simple owner time-of-day preferences."""
@@ -229,3 +352,5 @@ class Scheduler:
         if self.schedule is None:
             return 0
         return self.schedule.total_time
+    
+
