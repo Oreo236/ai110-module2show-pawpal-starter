@@ -5,11 +5,16 @@
 **a. Initial design**
 
 - Briefly describe your initial UML design.
+Add a pet and owner
+Add a task
+See daily schedule to be able to plan appropriately
+
 - What classes did you include, and what responsibilities did you assign to each?
+I included a Owner, Pet, Task and Scheduler. Owner holds the owner’s info, how much time they have each day, and their preferences; responsible for expressing the constraints and habits the planner must respect. Pet contains the pet’s details and the tasks that pet needs; responsible for listing what care that pet requires and any pet-specific rules. Task describes one care action (what it is, how long it takes, how important it is, and any preferred timing or must-do status); responsible for defining the units of work the planner schedules. Scheduler takes the owner’s constraints and the pets’ tasks and decides which tasks to do today, in what order, and which to skip; responsible for balancing time, priority, preferences, and mandatory tasks and for explaining the result.
 
 **b. Design changes**
 
-- Did your design change during implementation?
+- Did your design change during implementation? No, it did not change
 - If yes, describe at least one change and why you made it.
 
 ---
