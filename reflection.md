@@ -14,8 +14,11 @@ I included a Owner, Pet, Task and Scheduler. Owner holds the owner’s info, how
 
 **b. Design changes**
 
-- Did your design change during implementation? No, it did not change
+- Did your design change during implementation? Yes, it did, I added a Schedule class as well
 - If yes, describe at least one change and why you made it.
+Copilot suggested I add a Schedule class because it separates the planner's decision-making from the final plan so totals, summaries, and edits are handled cleanly and are easier to test.
+
+
 
 ---
 
