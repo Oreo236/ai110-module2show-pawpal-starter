@@ -43,12 +43,17 @@ Copilot suggested I add a Schedule class because it separates the planner's deci
 **a. How you used AI**
 
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
+I used AI for debugging and refactoring but I kept the design choices for myself.
 - What kinds of prompts or questions were most helpful?
+What does this line mean? If I want to do this, what can I do to achieve it?
 
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
+For the time when I was trying to improve the sort by time function, AI had suggested a method that looked cleaner but performance wise was bad and I am not a huge fan of having nested functions.
+
 - How did you evaluate or verify what the AI suggested?
+I read through each section of the codebase if I did not understand I asked a question until I understood everything.
 
 ---
 
@@ -57,12 +62,15 @@ Copilot suggested I add a Schedule class because it separates the planner's deci
 **a. What you tested**
 
 - What behaviors did you test?
+I tested task completion, pet task management, chronological sorting, daily recurrence, conflict detection, schedule generation, empty pet edge case, non-recurring task completion, and completed tasks are ignored in conflicts.
+
 - Why were these tests important?
+These tests were important because the scheduler's to test how the scheduler's decisions worked like which tasks get scheduled, in what order, and under what conditions.
 
 **b. Confidence**
 
-- How confident are you that your scheduler works correctly?
-- What edge cases would you test next if you had more time?
+- How confident are you that your scheduler works correctly? I am 4/5 confident right now.
+- What edge cases would you test next if you had more time? Owner with zero available minutes (should produce an empty schedule, not an error), and a mandatory task whose duration exceeds the owner's total available time
 
 ---
 
@@ -71,11 +79,15 @@ Copilot suggested I add a Schedule class because it separates the planner's deci
 **a. What went well**
 
 - What part of this project are you most satisfied with?
+I am most satisfied with the Scheduler class. It ended up covering much more than I originally planned and it all fits together in a way that is easy to read and test. The decision to keep Schedule as a separate class also paid off. It made generate_schedule() cleaner and made total_time and remaining_time easy to track.
+
 
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
+ I would improve conflict detection to check full time intervals (start time + duration) instead of just matching exact start times.
 
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+The biggest thing I learned is that a good UML diagram is a living document. My initial diagram was missing the Schedule class entirely, and several methods I ended up building were not planned at all. Working with AI made this more visible when I described what I needed, the AI often surfaced design questions I had not considered, which forced me to make deliberate choices rather than just writing code and hoping it fit together.

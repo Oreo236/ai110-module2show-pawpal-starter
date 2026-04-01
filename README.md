@@ -55,3 +55,37 @@ pip install -r requirements.txt
 - **What the tests cover:** Sorting (chronological ordering and handling tasks without times), recurrence logic (marking a daily task complete creates the next occurrence), conflict detection (duplicate start times and warnings), schedule generation (mandatory vs prioritized tasks), and edge cases (pets with no tasks, completed tasks ignored when detecting conflicts).
 
 - **Confidence Level:** ⭐⭐⭐⭐☆ (4/5) — Tests cover core scheduling behaviors and important edge cases
+
+## Features
+
+### Schedule Generation
+- **Priority-first scheduling** — Mandatory tasks (`must_do=True`) are always placed first; remaining tasks are sorted by priority (high → low) then by shorter duration to maximize tasks that fit within the owner's daily available minutes.
+- **Time budget enforcement** — Tasks that exceed the remaining available minutes are moved to an "unscheduled" list and surfaced in the UI explanation.
+
+### Sorting & Filtering
+- **Sort by start time** — Tasks can be ordered chronologically using an `HH:MM` time attribute; tasks without a time are pushed to the end.
+- **Sort by priority** — Tasks can be reordered by priority (descending) with duration as a tiebreaker.
+- **Filter by pet** — View only tasks belonging to a specific pet.
+- **Filter by completion** — Toggle between pending, completed, or all tasks.
+- **Filter by minimum priority** — Hide tasks below a chosen priority threshold.
+- **Feasibility filter** — Greedily selects the subset of tasks that fits within a given time budget.
+
+### Conflict Detection
+- **Time conflict detection** — Identifies tasks that share the same `HH:MM` start time across all pets; completed tasks are excluded from conflict checks.
+- **Human-readable conflict warnings** — Generates plain-English warning strings (e.g., "Conflict at 08:00: Morning walk, Feeding") for display in the UI.
+
+### Recurring Tasks
+- **Daily & weekly recurrence** — When `Scheduler.mark_task_complete()` is called on a task with `frequency="daily"` or `frequency="weekly"`, it automatically creates the next occurrence with an updated `due_date` and adds it to the pet.
+
+### Owner Preferences
+- **Preferred time-of-day ordering** — If an owner sets a `preferred_time` preference (e.g., `"morning"`), tasks matching that preference are surfaced first during schedule generation.
+
+### Task Completion
+- **Mark tasks complete** — Each scheduled task has an inline checkbox in the UI; checking it calls `task.completed = True`, which immediately removes it from conflict checks and pending filters.
+
+### Plan Explanation
+- **Schedule explanation** — Every task in the generated plan includes a reason (priority level and duration); unscheduled tasks show why they were skipped.
+
+## Demo
+
+<a href="/course_images/ai110/paw-starter.png" target="_blank"><img src='/course_images/ai110/paw-starter.png' title='PawPal App' width='' alt='PawPal App' class='center-block' /></a>.

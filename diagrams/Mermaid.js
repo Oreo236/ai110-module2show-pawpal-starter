@@ -1,3 +1,6 @@
+// PawPal+ — Mermaid diagram string export
+// Use this in a web page that loads mermaid, or import the string for tooling.
+const diagram = `
 classDiagram
     class Owner {
         +string name
@@ -80,3 +83,6 @@ classDiagram
     Scheduler "1" o-- "0..1" Schedule : creates
     Schedule "1" o-- "0..*" Task : references
     Scheduler ..> Task : <<creates>> on recurrence
+`;
+
+export default diagram;
